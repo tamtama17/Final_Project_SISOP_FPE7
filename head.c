@@ -52,6 +52,19 @@ int main(int argc, char *argv[]) {
         close(fd);
     }
   }
+  
+  else if(argc==3) {
+    int x = atoi(argv[1]);
+    for(i = 2; i < argc; i++) {
+        if((fd = open(argv[i], 0)) < 0) {
+          printf(1, "HEAD : CAN'T OPEN %s\n", argv[i]);
+          exit();
+        }
+        head(fd, argv[i], x);
+        close(fd);
+    }
+  }
+  
   else {
     printf(1,"HEAD : SYNTAX ERROR\n");
     exit();
