@@ -23,7 +23,7 @@ void head(int fd, char *name, int x) {
     printf(1, "HEAD: READ ERROR\n");
     exit();
   }
-  printf(1,"file : %s\n", name);
+  //printf(1,"file : %s\n", name);
 }
 
 int main(int argc, char *argv[]) {
