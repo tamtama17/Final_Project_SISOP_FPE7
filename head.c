@@ -27,6 +27,8 @@ void head(int fd, char *name, int x) {
 }
 
 int main(int argc, char *argv[]) {
+  int fd,i;
+  
   if(argc <= 1) {
     printf(1,"HEAD : ARGUMENT KURANG\n");
     exit();
@@ -40,6 +42,14 @@ int main(int argc, char *argv[]) {
       printf(1,"                   dari sebuah FILE ke standard output.\n\n");
       printf(1," head --help       Menampilkan bantuan penggunaan ini.\n\n");
       exit();
+    }
+    for(i = 1; i < argc; i++) {
+        if((fd = open(argv[i], 0)) < 0) {
+          printf(1, "HEAD : CAN'T OPEN %s\n", argv[i]);
+          exit();
+        }
+        head(fd, argv[i], 10);
+        close(fd);
     }
   }
   else {
