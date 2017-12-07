@@ -27,5 +27,15 @@ void head(int fd, char *name, int x) {
 }
 
 int main(int argc, char *argv[]) {
-  
+  if(argc <= 1) {
+    printf(1,"HEAD : ARGUMENT KURANG\n");
+    exit();
+  }
+  else if(argc==2) {
+    
+  }
+  else {
+    printf(1,"HEAD : SYNTAX ERROR\n");
+    exit();
+  }
 }
