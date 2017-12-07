@@ -32,7 +32,15 @@ int main(int argc, char *argv[]) {
     exit();
   }
   else if(argc==2) {
-    
+    if(strcmp(argv[1],"--help")==0) {
+      printf(1,"[HELP] Penggunaan :\n\n");
+      printf(1," head [FILE]       Menampilkan 10 baris pertama\n");
+      printf(1,"                   dari sebuah FILE ke standard output.\n\n");
+      printf(1," head [N] [FILE]   Menampilkan N baris pertama\n");
+      printf(1,"                   dari sebuah FILE ke standard output.\n\n");
+      printf(1," head --help       Menampilkan bantuan penggunaan ini.\n\n");
+      exit();
+    }
   }
   else {
     printf(1,"HEAD : SYNTAX ERROR\n");
