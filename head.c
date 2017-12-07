@@ -69,4 +69,5 @@ int main(int argc, char *argv[]) {
     printf(1,"HEAD : SYNTAX ERROR\n");
     exit();
   }
+  exit();
 }
