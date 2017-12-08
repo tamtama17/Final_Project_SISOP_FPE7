@@ -7,8 +7,11 @@ char buf[512];
 
 int main (int argc, char * argv[]) {
    int fd0, fd1, n;
-   if(argc<=2) {
-	printf(1, "Need 2 arguments!\n");
+   if(argc<3) {
+	if(argc==2)
+	printf(1, "cp: Missing destination file operand after file %s\n",argv[1]);
+	else
+	printf(1, "cp: Missing file operand!\n");
 	exit();
    }
 
