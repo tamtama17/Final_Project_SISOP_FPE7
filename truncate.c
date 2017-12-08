@@ -3,27 +3,32 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
+int tryHelp (const char *msg) {
+    char m[1024], h[1024] = {"Try 'truncate --help' for more information."};
+    strcat (strcat (strcpy (m, "truncate: "), msg), "\n");
+    puts (strcat (m, h));
+    return 0;
+}
+
 int main (int argc, char **argv) {
-    if (argc == 1) {
-        puts ("truncate: you must specify either ‘--size’ or ‘--reference’");
-        puts ("Try 'truncate --help' for more information.");
-    }
-    
     char cwd[1024];
     getcwd (cwd, sizeof (cwd));
+    strcat (cwd, "/");
     
     // default controller values
-    int s = -1, r = -1;
+    int size = -1, r = -1;
     FILE *f = NULL;
     int fileSize = -1;
     char *fileContent = NULL, *fileName = NULL;
-    int c = 1;
+    int c = 0;
     int o = 0;
+    int s = 0;
     int exists = 0;
     
-    for (int i = 0; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (!strcmp (argv[i], "--help")) {
             FILE *help = fopen ("help/truncate.txt", "r");
             char line[1024];
@@ -33,18 +38,21 @@ int main (int argc, char **argv) {
             return 0;
         }
         else if (!strcmp (argv[i], "-c") || !strcmp (argv[i], "--no-create")) {
-            c = 0;
+            c = 1;
         }
         else if (!strcmp (argv[i], "-o") || !strcmp (argv[i], "--io-blocks")) {
             o = 1;
         }
         else if (!strcmp (argv[i], "-r") || !strncmp (argv[i], "--reference=", 12)) {
+            if (i == argc - 1)
+                return tryHelp ("option requires an argument -- 'r'");
+            
             char fName[1024];
             if (argv[i+1][0] != '/')
                 strcat (strcpy (fName, cwd), argv[i+1]);
             else
                 strcpy (fName, argv[i+1]);
-            printf ("reference name: %s\n", fName);
+            
             FILE *reference = fopen (argv[i+1], "r");
             if (reference) {
                 struct stat st;
@@ -53,34 +61,40 @@ int main (int argc, char **argv) {
                 else
                     r = -1;
             }
+            
             fclose (reference);
+            i++;
         }
         else if (!strcmp (argv[i], "-s") || !strncmp (argv[i], "--size=", 7)) {
+            if (i == argc - 1)
+                return tryHelp ("option requires an argument -- 's'");
+            
             char *sz = argv[i+1];
             
             if (*(sz+1) == '-')
                 sz = strchr (argv[i+1], '=') + 1;
             
-            while (sz) {
+            while (*sz) {
                 if (!isdigit (*sz)) {
-                    printf ("truncate: Invalid number: ‘%s’", argv[i+1]);
-                    return 0;
+                    char error[1024];
+                    sprintf (error, "Invalid number: ‘%s’", argv[i+1]);
+                    return tryHelp (error);
                 }
                 
                 sz++;
             }
             
-            s = atoi (sz);
+            size = atoi (argv[i+1]);
+            s = 1;
             i++;
         }
         else {
             if (!f && (exists = access (argv[i], F_OK) != -1)) {
                 char fName[1024];
                 if (argv[i][0] != '/')
-                    strcat (strcpy (fName, cwd), argv[i+1]);
+                    strcat (strcpy (fName, cwd), argv[i]);
                 else
-                    strcpy (fName, argv[i+1]);
-                printf ("file name: %s\n", fName);
+                    strcpy (fName, argv[i]);
                 f = fopen (argv[i], "r");
                 if (f) {
                     struct stat st;
@@ -90,41 +104,49 @@ int main (int argc, char **argv) {
                         fileSize = -1;
                 }
                 fileContent = malloc (fileSize * sizeof (char));
-                while (fgets (fileContent, 1024, f));
+                char temp[1024];
+                while (fgets (temp, 1024, f))
+                    strcat (fileContent, temp);
             }
             fileName = argv[i];
         }
     }
     
-    if (!fileName) {
+    if (!fileName)
         // user didn't entered file name
-        puts ("truncate: missing file operand");
-        puts ("Try 'truncate --help' for more information.");
+        return tryHelp ("missing file operand");
+    
+    if (r >= 0) {
+        if (s)
+            return tryHelp ("you must specify a relative ‘--size’ with ‘--reference’");
+        size = r;
     }
     
-    int size = r < s && r >= 0 ? r : s;
-    if (size == -1) {
+    if (size == -1)
         // user didn't specify size or reference
-        puts ("truncate: you must specify either ‘--size’ or ‘--reference’");
-        puts ("Try 'truncate --help' for more information.");
-    }
+        return tryHelp ("you must specify either ‘--size’ or ‘--reference’");
     
     if (!exists && c)
         // file doesn't exists and c (no-create) flag is on
         return 0;
     
     if (o) {
+        if (!s)
+            return tryHelp ("‘--io-blocks’ was specified but ‘--size’ was not");
+        
         struct stat fi;
         stat ("/", &fi);
         size *= fi.st_blksize;
     }
     
     f = fopen (fileName, "w");
-    for (int i = 0; i < size && *fileContent; i++)
-        if (i < size)
+    for (int i = 0; i < size; i++)
+        if (*fileContent) {
             fputc (*fileContent, f);
+            fileContent++;
+        }
         else
-            fputc ('\00', f);
+            fputc ('\0', f);
     fclose (f);
     
     return 0;
