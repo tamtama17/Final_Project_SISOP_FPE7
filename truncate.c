@@ -6,12 +6,6 @@
 #include <sys/stat.h>
 
 int main (int argc, char **argv) {
-    char args[1024];
-    scanf ("%s", args);
-    
-    char args2[1024];
-    scanf ("%s", args2);
-    
     if (argc == 1) {
         puts ("truncate: you must specify either ‘--size’ or ‘--reference’");
         puts ("Try 'truncate --help' for more information.");
