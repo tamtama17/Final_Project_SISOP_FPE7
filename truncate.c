@@ -1,10 +1,10 @@
-#include <string.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 int tryHelp (const char *msg) {
     char m[1024], h[1024] = {"Try 'truncate --help' for more information."};
