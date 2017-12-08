@@ -6,7 +6,7 @@
 * ls
 * mv, mv *
 * touch
-* rm
+* rm, rm -rf
 * cd
 
 <h3>Command Pilihan</h3>
