@@ -5,7 +5,7 @@
 
 char buf[512];
 
-int main (int argc, int * argv[]) {
+int main (int argc, char * argv[]) {
    int fd0, fd1, n;
    if(argc<=2) {
 	printf(1, "Need 2 arguments!\n");
