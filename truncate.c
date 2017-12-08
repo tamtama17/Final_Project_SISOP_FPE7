@@ -1,8 +1,8 @@
-#include <mem.h>
+#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <io.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 int main (int argc, char **argv) {
@@ -52,8 +52,13 @@ int main (int argc, char **argv) {
                 strcpy (fName, argv[i+1]);
             printf ("reference name: %s\n", fName);
             FILE *reference = fopen (argv[i+1], "r");
-            if (reference)
-                r = _filelength (_fileno (reference));
+            if (reference) {
+                struct stat st;
+                if (stat (fName, &st) == 0)
+                    r = st.st_size;
+                else
+                    r = -1;
+            }
             fclose (reference);
         }
         else if (!strcmp (argv[i], "-s") || !strncmp (argv[i], "--size=", 7)) {
@@ -83,8 +88,13 @@ int main (int argc, char **argv) {
                     strcpy (fName, argv[i+1]);
                 printf ("file name: %s\n", fName);
                 f = fopen (argv[i], "r");
-                if (f)
-                    fileSize = _filelength (_fileno (f));
+                if (f) {
+                    struct stat st;
+                    if (stat (fName, &st) == 0)
+                        fileSize = st.st_size;
+                    else
+                        fileSize = -1;
+                }
                 fileContent = malloc (fileSize * sizeof (char));
                 while (fgets (fileContent, 1024, f));
             }
